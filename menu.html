@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ガールズバーREVIEW - メニュー表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* パーティクル背景 */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ローディング画面 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s, visibility 0.8s;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 5px solid rgba(255,255,255,0.2);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 18px;
+            margin-top: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+            border-top: 6px solid #ff6b6b;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff6b6b, #ff8a80, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            animation: gradientShift 3s ease infinite, float 3s ease-in-out infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 0.8s;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8a80);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .nav-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+        }
+
+        .nav-btn.secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* タブナビゲーション */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #666;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn.active,
+        .tab-btn:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: slideInUp 0.6s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff6b6b, #ff8a80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #ff6b6b;
+            position: relative;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .menu-item {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 3px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.25);
+            border-color: #ff6b6b;
+        }
+
+        .menu-item.highlight {
+            border: 4px solid #ffd700;
+            background: linear-gradient(135deg, #fffbf0, #fff8e1);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .menu-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ffebed;
+        }
+
+        .menu-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .menu-price {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff6b6b, #ff8a80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .menu-description {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.9;
+        }
+
+        .popular-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-left: 10px;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .calculation-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 5px solid #2196f3;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
+            animation: slideInLeft 0.8s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .calculation-title {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .calculation-item {
+            margin-bottom: 15px;
+            padding: 18px;
+            background: white;
+            border-radius: 12px;
+            font-size: 15px;
+            border-left: 4px solid #2196f3;
+            transition: all 0.3s;
+        }
+
+        .calculation-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.2);
+        }
+
+        .price-highlight {
+            color: #ff6b6b;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 18px;
+            text-align: center;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #ff6b6b, #ff8a80);
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .highlight-row {
+            background: #fff3cd !important;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e7f3ff, #d0e9ff);
+            border-left: 5px solid #2196f3;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .info-text {
+            color: #555;
+            line-height: 1.9;
+            font-size: 15px;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 60px;
+            padding: 50px;
+            background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(255,107,107,0.2);
+        }
+
+        .cta-title {
+            font-size: 24px;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .reserve-btn-large {
+            display: inline-block;
+            font-size: 22px;
+            padding: 22px 50px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8a80);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reserve-btn-large::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .reserve-btn-large:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .reserve-btn-large:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(255, 107, 107, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+            }
+            .logo {
+                font-size: 36px;
+            }
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav-buttons, .tab-navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+            .comparison-table {
+                font-size: 12px;
+            }
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- パーティクル背景 -->
+    <canvas id="particles"></canvas>
+
+    <!-- ローディング画面 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">メニューを準備中...</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">🍸 ガールズバー REVIEW</div>
+            <p class="subtitle">メニュー表 & 料金システム</p>
+            <div class="nav-buttons">
+                <a href="reservation.html" class="nav-btn">📅 予約ページへ</a>
+                <a href="cast.html" class="nav-btn secondary">👯 キャスト紹介へ</a>
+            </div>
+        </div>
+
+        <!-- タブナビゲーション -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('plans')">⏰ 基本プラン</button>
+            <button class="tab-btn" onclick="switchTab('drinks')">🍹 ドリンク</button>
+            <button class="tab-btn" onclick="switchTab('comparison')">📊 料金比較</button>
+            <button class="tab-btn" onclick="switchTab('system')">💳 システム案内</button>
+        </div>
+
+        <!-- 基本プランタブ -->
+        <div id="plans" class="tab-content active">
+            <h2 class="section-title">基本料金プラン</h2>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <span class="menu-name">30分コース</span>
+                        <span class="menu-price">¥1,650</span>
+                    </div>
+                    <div class="menu-description">
+                        気軽に楽しみたい方に！短時間でサクッと楽しめます。<br><br>
+                        <strong>【含まれるもの】</strong><br>
+                        • 30分間のオンライン接客<br>
+                        • キャスト指名可能<br><br>
+                        <strong style="color: #ff6b6b;">※ドリンクチケット別途購入必須</strong>
+                    </div>
+                </div>
+
+                <div class="menu-item highlight">
+                    <div class="menu-item-header">
+                        <span class="menu-name">60分セットコース<span class="popular-badge">人気No.1</span></span>
+                        <span class="menu-price">¥8,800</span>
+                    </div>
+                    <div class="menu-description">
+                        一番お得なセットプラン！じっくり楽しみたい方に最適です。<br><br>
+                        <strong>【含まれるもの】</strong><br>
+                        • 60分間のオンライン接客<br>
+                        • キャスト指名料込み<br>
+                        • ドリンク4杯分チケット込み<br>
+                        • 追加ドリンクチケット購入可能<br><br>
+                        <strong style="color: #51cf66;">※指名料・ドリンク込みでお得！</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ドリンクタブ -->
+        <div id="drinks" class="tab-content">
+            <h2 class="section-title">ドリンクチケット</h2>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <span class="menu-name">2杯チケット</span>
+                        <span class="menu-price">¥2,200</span>
+                    </div>
+                    <div class="menu-description">
+                        1杯あたり<br>
+                        <strong class="price-highlight">¥1,100</strong><br>
+                        お試し用、ショート利用にぴったり
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <span class="menu-name">4杯チケット</span>
+                        <span class="menu-price">¥4,400</span>
+                    </div>
+                    <div class="menu-description">
+                        1杯あたり<br>
+                        <strong class="price-highlight">¥1,100</strong><br>
+                        60分セットと組み合わせてちょうど良いボリューム
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <span class="menu-name">6杯チケット</span>
+                        <span class="menu-price">¥6,600</span>
+                    </div>
+                    <div class="menu-description">
+                        1杯あたり<br>
+                        <strong class="price-highlight">¥1,100</strong><br>
+                        たっぷり飲みたい方におすすめ
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 料金比較タブ -->
+        <div id="comparison" class="tab-content">
+            <h2 class="section-title">料金例・お得度比較</h2>
+            
+            <div class="calculation-box">
+                <div class="calculation-title">📊 30分コースの場合</div>
+                <div class="calculation-item">
+                    <strong>パターン1：</strong> 30分 + ドリンク2杯<br>
+                    合計料金 = ¥1,650 + ¥2,200 = <span class="price-highlight">¥3,850</span>
+                </div>
+                <div class="calculation-item">
+                    <strong>パターン2：</strong> 30分 + ドリンク4杯<br>
+                    合計料金 = ¥1,650 + ¥4,400 = <span class="price-highlight">¥6,050</span>
+                </div>
+                <div class="calculation-item">
+                    <strong>パターン3：</strong> 30分 + ドリンク6杯<br>
+                    合計料金 = ¥1,650 + ¥6,600 = <span class="price-highlight">¥8,250</span>
+                </div>
+            </div>
+
+            <div class="calculation-box" style="background: linear-gradient(135deg, #fff3cd, #ffe69c); border-left-color: #ffc107;">
+                <div class="calculation-title" style="color: #856404;">🎉 60分セットコースの場合（おすすめ！）</div>
+                <div class="calculation-item" style="border-left-color: #ffc107;">
+                    <strong>基本セット：</strong> 60分 + 指名料 + ドリンク4杯<br>
+                    <strong class="price-highlight">¥8,800</strong><br>
+                    <span style="color: #51cf66; font-size: 13px;">※全て込みでこの価格！</span>
+                </div>
+                <div class="calculation-item" style="border-left-color: #ffc107;">
+                    <strong>追加ドリンク2杯の場合：</strong><br>
+                    合計料金 = ¥8,800 + ¥2,200 = <span class="price-highlight">¥11,000</span><br>
+                    <span style="font-size: 13px;">（合計ドリンク6杯）</span>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>項目</th>
+                        <th>30分コース</th>
+                        <th>60分セットコース</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>基本料金</strong></td>
+                        <td>¥1,650</td>
+                        <td>¥8,800</td>
+                    </tr>
+                    <tr>
+                        <td><strong>接客時間</strong></td>
+                        <td>30分</td>
+                        <td>60分</td>
+                    </tr>
+                    <tr>
+                        <td><strong>キャスト指名</strong></td>
+                        <td>可能（別途料金）</td>
+                        <td>込み</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ドリンク</strong></td>
+                        <td>別途購入必須</td>
+                        <td>4杯分込み</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>1分あたり料金</strong></td>
+                        <td>¥55〜</td>
+                        <td>¥147（全込み）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>最低必要金額</strong></td>
+                        <td>¥3,850（ドリンク2杯込み）</td>
+                        <td>¥8,800（全込み）</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- システム案内タブ -->
+        <div id="system" class="tab-content">
+            <h2 class="section-title">システム・ご利用案内</h2>
+            
+            <div class="info-box">
+                <div class="info-title">💳 お支払い方法</div>
+                <div class="info-text">
+                    <strong>対応決済方法：</strong>PayPay / LINE Pay / 楽天ペイ / d払い / クレジットカード<br>
+                    <strong>決済タイミング：</strong>ご予約時間の5分前までに事前決済<br>
+                    <strong>決済方法：</strong>予約確定後にお送りするQRコードまたは決済URLから<br>
+                    <strong>領収書：</strong>決済完了後、電子領収書を自動発行
+                </div>
+            </div>
+
+            <div class="info-box" style="margin-top: 25px;">
+                <div class="info-title">📝 ご利用の流れ</div>
+                <div class="info-text">
+                    <strong>1.</strong> 予約フォームから必要事項を入力して送信<br>
+                    <strong>2.</strong> 24時間以内に予約確認メール/LINEが届く<br>
+                    <strong>3.</strong> 決済用QRコードまたはURLでお支払い（予約時間の5分前まで）<br>
+                    <strong>4.</strong> 決済完了後、ビデオ通話用URLをお送りします<br>
+                    <strong>5.</strong> 予約時間にURLにアクセスして接客スタート！
+                </div>
+            </div>
+
+            <div class="info-box" style="margin-top: 25px; background: linear-gradient(135deg, #fff3cd, #ffe69c); border-left-color: #ffc107;">
+                <div class="info-title" style="color: #856404;">⚠️ キャンセルポリシー</div>
+                <div class="info-text" style="color: #856404;">
+                    <strong>24時間前まで：</strong>キャンセル料無料<br>
+                    <strong>24時間以内：</strong>料金の50%<br>
+                    <strong>当日キャンセル：</strong>料金の100%<br>
+                    <strong>無断キャンセル：</strong>料金の100% + 次回予約制限<br>
+                    ※やむを得ない事情がある場合はご相談ください
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <p class="cta-title">お得なプランで素敵な時間を✨</p>
+            <a href="reservation.html" class="reserve-btn-large">
+                🎉 今すぐ予約する
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // ローディング画面
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        // パーティクル背景
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 3 + 1,
+                vx: Math.random() * 1 - 0.5,
+                vy: Math.random() * 1 - 0.5,
+                opacity: Math.random() * 0.5 + 0.2
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                ctx.fill();
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            });
+
+            requestAnimationFrame(drawParticles);
+        }
+
+        drawParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // タブ切り替え機能
+        function switchTab(tabId) {
+            // 全てのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 全てのタブボタンを非アクティブ
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 指定されたタブを表示
+            document.getElementById(tabId).classList.add('active');
+            
+            // クリックされたボタンをアクティブに
+            event.target.classList.add('active');
+        }
+
+        // メニューアイテムの3Dホバー効果
+        document.addEventListener('mousemove', function(e) {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const rect = item.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 20;
+                    const rotateY = (centerX - x) / 20;
+                    
+                    item.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px) scale(1.02)`;
+                }
+            });
+        });
+
+        document.addEventListener('mouseleave', function() {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>

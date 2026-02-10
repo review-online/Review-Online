@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ガールズバーREVIEW - キャスト紹介</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; overflow-x: hidden; }
+        #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.8s, visibility 0.8s; }
+        .loading-screen.hidden { opacity: 0; visibility: hidden; }
+        .loader { width: 80px; height: 80px; border: 5px solid rgba(255,255,255,0.2); border-top: 5px solid white; border-radius: 50%; animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; }
+        .loading-text { color: white; font-size: 18px; margin-top: 20px; animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .container { max-width: 1200px; margin: 0 auto; background: rgba(255, 255, 255, 0.95); border-radius: 30px; padding: 50px; box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4); border-top: 6px solid #ff6b6b; position: relative; z-index: 1; backdrop-filter: blur(20px); opacity: 0; transform: translateY(50px); animation: fadeInUp 1s ease forwards; animation-delay: 0.5s; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .header { text-align: center; margin-bottom: 50px; }
+        .logo { font-size: 48px; font-weight: bold; background: linear-gradient(135deg, #ff6b6b, #ff8a80, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 15px; animation: gradientShift 3s ease infinite, float 3s ease-in-out infinite; background-size: 200% 200%; }
+        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .subtitle { color: #666; font-size: 18px; margin-bottom: 30px; opacity: 0; animation: fadeIn 1s ease forwards; animation-delay: 0.8s; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .nav-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+        .nav-btn { display: inline-block; padding: 15px 35px; background: linear-gradient(135deg, #ff6b6b, #ff8a80); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4); position: relative; overflow: hidden; }
+        .nav-btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
+        .nav-btn:hover::before { width: 300px; height: 300px; }
+        .nav-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6); }
+        .nav-btn.secondary { background: linear-gradient(135deg, #667eea, #764ba2); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+        .filter-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+        .filter-btn { padding: 12px 30px; border: 2px solid #ff6b6b; background: rgba(255, 255, 255, 0.9); color: #ff6b6b; border-radius: 30px; cursor: pointer; font-weight: bold; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(10px); }
+        .filter-btn:hover, .filter-btn.active { background: linear-gradient(135deg, #ff6b6b, #ff8a80); color: white; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4); }
+        .section-title { font-size: 36px; font-weight: bold; text-align: center; background: linear-gradient(135deg, #ff6b6b, #ff8a80); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 40px 0; padding-bottom: 20px; border-bottom: 4px solid #ff6b6b; position: relative; }
+        .cast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; margin-top: 40px; }
+        .cast-card { background: rgba(255, 255, 255, 0.95); border-radius: 25px; overflow: hidden; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 3px solid transparent; box-shadow: 0 10px 30px rgba(0,0,0,0.1); opacity: 0; transform: translateY(50px) scale(0.9); animation: cardAppear 0.6s ease forwards; cursor: pointer; position: relative; backdrop-filter: blur(10px); }
+        .cast-card:nth-child(1) { animation-delay: 0.1s; } .cast-card:nth-child(2) { animation-delay: 0.2s; } .cast-card:nth-child(3) { animation-delay: 0.3s; } .cast-card:nth-child(4) { animation-delay: 0.4s; } .cast-card:nth-child(5) { animation-delay: 0.5s; } .cast-card:nth-child(6) { animation-delay: 0.6s; } .cast-card:nth-child(7) { animation-delay: 0.7s; } .cast-card:nth-child(8) { animation-delay: 0.8s; } .cast-card:nth-child(9) { animation-delay: 0.9s; } .cast-card:nth-child(10) { animation-delay: 1.0s; } .cast-card:nth-child(11) { animation-delay: 1.1s; } .cast-card:nth-child(12) { animation-delay: 1.2s; } .cast-card:nth-child(13) { animation-delay: 1.3s; }
+        @keyframes cardAppear { to { opacity: 1; transform: translateY(0) scale(1); } }
+        .cast-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent); transform: rotate(45deg); transition: all 0.5s; }
+        .cast-card:hover::before { left: 100%; }
+        .cast-card:hover { transform: translateY(-15px) scale(1.03); box-shadow: 0 25px 50px rgba(255, 107, 107, 0.3); border-color: #ff6b6b; }
+        .cast-image-container { width: 100%; height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .cast-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .cast-card:hover .cast-image { transform: scale(1.1) rotate(2deg); }
+        .cast-image-placeholder { font-size: 100px; color: white; animation: bounce 2s ease-in-out infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .cast-info { padding: 25px; background: linear-gradient(to bottom, white, #f8f9fa); }
+        .cast-name-area { display: flex; justify-content: space-between; align-items: end; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 3px solid #ffebed; position: relative; }
+        .cast-name { font-size: 28px; font-weight: bold; background: linear-gradient(135deg, #ff6b6b, #ff8a80); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .cast-age { font-size: 18px; color: #ff6b6b; font-weight: bold; background: #fff0f0; padding: 5px 15px; border-radius: 20px; }
+        .cast-type-tag { display: inline-block; padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+        .cast-type-tag.cute { background: #ffe0e6; color: #d63384; }
+        .cast-type-tag.beauty { background: #e7f3ff; color: #0d6efd; }
+        .cast-type-tag.talk { background: #fff3cd; color: #856404; }
+        .cast-message { font-size: 15px; color: #666; line-height: 1.8; margin-bottom: 20px; min-height: 60px; background: linear-gradient(135deg, #fff9fa, #fff0f0); padding: 15px; border-radius: 15px; border-left: 4px solid #ff6b6b; font-style: italic; position: relative; }
+        .cast-message::before { content: '"'; position: absolute; top: 5px; left: 10px; font-size: 40px; color: rgba(255, 107, 107, 0.2); font-family: Georgia, serif; }
+        .profile-table { width: 100%; font-size: 14px; margin-bottom: 20px; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .profile-table th { text-align: left; color: #666; font-weight: bold; padding: 12px 15px; width: 90px; background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-bottom: 2px solid #e0e0e0; }
+        .profile-table td { text-align: left; color: #333; font-weight: normal; padding: 12px 15px; border-bottom: 2px solid #f0f0f0; }
+        .profile-table tr:last-child th, .profile-table tr:last-child td { border-bottom: none; }
+        .reserve-btn { display: block; width: 100%; padding: 16px; background: linear-gradient(135deg, #ff6b6b, #ff8a80); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; text-align: center; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4); font-size: 16px; position: relative; overflow: hidden; }
+        .reserve-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6); }
+        .info-box { background: #e7f3ff; border-left: 4px solid #2196f3; padding: 20px; border-radius: 8px; margin: 30px 0; }
+        .info-title { font-weight: bold; color: #1976d2; margin-bottom: 10px; font-size: 16px; }
+        .info-text { color: #555; line-height: 1.8; font-size: 14px; }
+        @media (max-width: 768px) { .container { padding: 20px; } .cast-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } .cast-image-container { height: 280px; } .cast-info { padding: 15px; } .nav-buttons, .filter-buttons { flex-direction: column; align-items: center; } }
+        @media (max-width: 480px) { .cast-grid { grid-template-columns: 1fr; } .cast-image-container { height: 350px; } }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">キャスト情報を読み込み中...</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">🍸 ガールズバー REVIEW</div>
+            <p class="subtitle">個性豊かな魅力的なキャストたち</p>
+            <div class="nav-buttons">
+                <a href="reservation.html" class="nav-btn">📅 予約ページへ</a>
+                <a href="menu.html" class="nav-btn secondary">📋 メニュー表へ</a>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-title">✨ REVIEWの魅力的なキャストたち</div>
+            <div class="info-text">
+                当店自慢の個性豊かなキャストをご紹介いたします。それぞれ異なる魅力と特技を持ったキャストが、あなたの素敵な時間を演出します。気になるキャストがいましたら、ぜひご指名ください！
+            </div>
+        </div>
+
+        <h2 class="section-title">💫 Cast Profile</h2>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterCasts('all')">全員表示</button>
+            <button class="filter-btn" onclick="filterCasts('cute')">キュート系</button>
+            <button class="filter-btn" onclick="filterCasts('beauty')">ビューティー系</button>
+            <button class="filter-btn" onclick="filterCasts('talk')">トーク上手</button>
+        </div>
+
+        <div class="cast-grid" id="castGrid"></div>
+
+        <div style="text-align: center; margin-top: 60px; padding: 40px; background: linear-gradient(135deg, #fff5f5, #ffe0e0); border-radius: 25px; box-shadow: 0 10px 30px rgba(255,107,107,0.2);">
+            <p style="font-size: 22px; color: #ff6b6b; font-weight: bold; margin-bottom: 25px;">気になるキャストは見つかりましたか？</p>
+            <a href="reservation.html" class="nav-btn" style="font-size: 20px; padding: 20px 50px; display: inline-block;">🎉 今すぐ予約する</a>
+        </div>
+    </div>
+
+    <script>
+        const castData = [
+          {
+                    "name": "りょう",
+                    "age": "25",
+                    "type": "talk",
+                    "birth": "12月1日",
+                    "blood": "B型",
+                    "height": "153cm",
+                    "hobby": "ダンス",
+                    "img": "ryou.jpg",
+                    "comment": "いろんな人と楽しくお話がしたいです(^^♪"
+          },
+          {
+                    "name": "ありす",
+                    "age": "秘密",
+                    "type": "talk",
+                    "birth": "10月20日",
+                    "blood": "O型",
+                    "height": "155cm",
+                    "hobby": "映画鑑賞",
+                    "img": "arisu.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "なお",
+                    "age": "21",
+                    "type": "cute",
+                    "birth": "2月28日",
+                    "blood": "O型",
+                    "height": "158cm",
+                    "hobby": "映画・読書",
+                    "img": "nao.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "はるか",
+                    "age": "21",
+                    "type": "beauty",
+                    "birth": "3月2日",
+                    "blood": "no date",
+                    "height": "163cm",
+                    "hobby": "カラオケ",
+                    "img": "haruka.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "りと",
+                    "age": "20",
+                    "type": "talk",
+                    "birth": "5月24日",
+                    "blood": "O型",
+                    "height": "158cm",
+                    "hobby": "メイク",
+                    "img": "rito.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "あんり",
+                    "age": "20",
+                    "type": "beauty",
+                    "birth": "6月20日",
+                    "blood": "AB型",
+                    "height": "152cm",
+                    "hobby": "メイク",
+                    "img": "anri.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "みう",
+                    "age": "20",
+                    "type": "talk",
+                    "birth": "9月2日",
+                    "blood": "B型",
+                    "height": "166cm",
+                    "hobby": "no date",
+                    "img": "miu.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "あいな",
+                    "age": "21",
+                    "type": "cute",
+                    "birth": "2月11日",
+                    "blood": "no date",
+                    "height": "no date",
+                    "hobby": "旅行",
+                    "img": "aina.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "かのん",
+                    "age": "21",
+                    "type": "beauty",
+                    "birth": "8月22日",
+                    "blood": "no date",
+                    "height": "167cm",
+                    "hobby": "ネトフリ・音楽聴くこと",
+                    "img": "kanon.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "れみ",
+                    "age": "20",
+                    "type": "cute",
+                    "birth": "2月14日",
+                    "blood": "O型",
+                    "height": "163cm",
+                    "hobby": "アイドルのライブ鑑賞",
+                    "img": "remi.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "ののか",
+                    "age": "秘密",
+                    "type": "beauty",
+                    "birth": "2月21日",
+                    "blood": "no date",
+                    "height": "no date",
+                    "hobby": "寝ること",
+                    "img": "nonoka.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "ゆみ",
+                    "age": "20",
+                    "type": "beauty",
+                    "birth": "8月9日",
+                    "blood": "B型",
+                    "height": "no date",
+                    "hobby": "no date",
+                    "img": "yumi.jpg",
+                    "comment": "よろしくお願いします！"
+          },
+          {
+                    "name": "れど",
+                    "age": "20",
+                    "type": "beauty",
+                    "birth": "7月10日",
+                    "blood": "O型",
+                    "height": "no date",
+                    "hobby": "no date",
+                    "img": "redo.jpg",
+                    "comment": "よろしくお願いします！"
+          }
+];
+
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                renderCasts('all');
+            }, 1500);
+        });
+
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 3 + 1,
+                vx: Math.random() * 1 - 0.5,
+                vy: Math.random() * 1 - 0.5,
+                opacity: Math.random() * 0.5 + 0.2
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                ctx.fill();
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            });
+
+            requestAnimationFrame(drawParticles);
+        }
+
+        drawParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        function renderCasts(filter) {
+            const grid = document.getElementById('castGrid');
+            grid.innerHTML = '';
+
+            const filteredCasts = filter === 'all' ? castData : castData.filter(cast => cast.type === filter);
+
+            filteredCasts.forEach((cast, index) => {
+                const card = document.createElement('div');
+                card.className = 'cast-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+
+                const typeLabel = {
+                    'cute': 'キュート系 🌸',
+                    'beauty': 'ビューティー系 ✨',
+                    'talk': 'トーク上手 🎵'
+                };
+
+                card.innerHTML = `
+                    <div class="cast-image-container">
+                        <img src="${cast.img}" alt="${cast.name}" class="cast-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="cast-image-placeholder" style="display: none;">👩</div>
+                    </div>
+                    <div class="cast-info">
+                        <div class="cast-type-tag ${cast.type}">${typeLabel[cast.type]}</div>
+                        <div class="cast-name-area">
+                            <div class="cast-name">${cast.name}</div>
+                            <div class="cast-age">${cast.age}歳</div>
+                        </div>
+                        <div class="cast-message">${cast.comment}</div>
+                        <table class="profile-table">
+                            <tr><th>誕生日</th><td>${cast.birth}</td></tr>
+                            <tr><th>血液型</th><td>${cast.blood}</td></tr>
+                            <tr><th>身長</th><td>${cast.height}</td></tr>
+                            <tr><th>趣味</th><td>${cast.hobby}</td></tr>
+                        </table>
+                        <a href="reservation.html" class="reserve-btn">${cast.name}を指名予約</a>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCasts(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCasts(type);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ガールズバーREVIEW - ご予約</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; overflow-x: hidden; }
+        
+        #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.8s, visibility 0.8s; }
+        .loading-screen.hidden { opacity: 0; visibility: hidden; }
+        .loader { width: 80px; height: 80px; border: 5px solid rgba(255,255,255,0.2); border-top: 5px solid white; border-radius: 50%; animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; }
+        .loading-text { color: white; font-size: 18px; margin-top: 20px; animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .container { max-width: 700px; margin: 0 auto; background: rgba(255, 255, 255, 0.95); border-radius: 30px; padding: 50px; box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4); border-top: 6px solid #ff6b6b; position: relative; z-index: 1; backdrop-filter: blur(20px); opacity: 0; transform: translateY(50px); animation: fadeInUp 1s ease forwards; animation-delay: 0.5s; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        .header { text-align: center; margin-bottom: 40px; }
+        .logo { font-size: 42px; font-weight: bold; background: linear-gradient(135deg, #ff6b6b, #ff8a80, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 15px; animation: gradientShift 3s ease infinite, float 3s ease-in-out infinite; background-size: 200% 200%; }
+        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .subtitle { color: #666; font-size: 16px; margin-bottom: 20px; opacity: 0; animation: fadeIn 1s ease forwards; animation-delay: 0.8s; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        
+        .menu-link-area { text-align: center; margin-bottom: 35px; padding: 25px; background: linear-gradient(135deg, #fff5f5, #ffe0e0); border-radius: 20px; border: 3px dashed #ff6b6b; animation: slideInLeft 0.8s ease; }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        .menu-btn { display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ff8a80); color: white; padding: 14px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4); position: relative; overflow: hidden; margin: 0 10px; }
+        .menu-btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
+        .menu-btn:hover::before { width: 300px; height: 300px; }
+        .menu-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6); }
+        
+        .form-group { margin-bottom: 28px; opacity: 0; animation: fadeIn 0.5s ease forwards; }
+        .form-group:nth-child(1) { animation-delay: 1.0s; }
+        .form-group:nth-child(2) { animation-delay: 1.1s; }
+        .form-group:nth-child(3) { animation-delay: 1.2s; }
+        .form-group:nth-child(4) { animation-delay: 1.3s; }
+        .form-group:nth-child(5) { animation-delay: 1.4s; }
+        .form-group:nth-child(6) { animation-delay: 1.5s; }
+        .form-group:nth-child(7) { animation-delay: 1.6s; }
+        
+        label { display: block; margin-bottom: 10px; color: #333; font-weight: bold; font-size: 15px; }
+        .required { color: #ff6b6b; margin-left: 4px; }
+        
+        input[type="text"], input[type="email"], input[type="date"], input[type="datetime-local"], select, textarea {
+            width: 100%; padding: 16px; border: 3px solid #e0e0e0; border-radius: 15px; font-size: 16px; background-color: #fff; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #ff6b6b; box-shadow: 0 0 0 5px rgba(255, 107, 107, 0.15); transform: translateY(-3px); }
+        
+        .select-wrapper { position: relative; }
+        .select-wrapper::after { content: '▼'; font-size: 14px; color: #ff6b6b; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); pointer-events: none; font-weight: bold; transition: transform 0.3s; }
+        .select-wrapper:hover::after { transform: translateY(-50%) scale(1.2); }
+        select { appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer; }
+        
+        .submit-btn { width: 100%; padding: 22px; background: linear-gradient(135deg, #ff6b6b, #ff8a80); color: white; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); margin-top: 30px; box-shadow: 0 15px 40px rgba(255, 107, 107, 0.5); position: relative; overflow: hidden; }
+        .submit-btn::before { content: '✨'; position: absolute; left: 30px; transition: all 0.4s; font-size: 24px; }
+        .submit-btn:hover::before { left: calc(50% - 12px); }
+        .submit-btn:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 20px 50px rgba(255, 107, 107, 0.7); }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .contact-method { display: flex; gap: 15px; margin-bottom: 15px; }
+        .contact-method label { display: flex; align-items: center; cursor: pointer; font-weight: normal; }
+        .contact-method input[type="radio"] { margin-right: 8px; width: 18px; height: 18px; cursor: pointer; accent-color: #ff6b6b; }
+        .contact-input-group { display: none; }
+        .contact-input-group.active { display: block; }
+        
+        .payment-info { background: #e7f3ff; border-left: 4px solid #2196f3; padding: 20px; border-radius: 8px; margin-top: 20px; font-size: 14px; color: #1565c0; line-height: 1.6; }
+        .payment-title { font-weight: bold; margin-bottom: 10px; font-size: 16px; }
+        .qr-badges { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .qr-badge { background: white; padding: 5px 12px; border-radius: 15px; font-size: 12px; border: 1px solid #ddd; color: #666; }
+        
+        .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 13px; color: #856404; line-height: 1.6; }
+        .small-text { font-size: 0.85rem; color: #777; margin-top: 8px; }
+        .line-add-btn { display: inline-block; margin: 10px 0; padding: 8px 16px; background: #00c300; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; }
+        
+        /* 送信成功モーダル */
+        .success-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; }
+        .success-modal.show { display: flex; animation: fadeIn 0.3s ease; }
+        .success-content { background: white; padding: 40px; border-radius: 25px; text-align: center; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: modalSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes modalSlideIn { from { transform: translateY(-100px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        .success-icon { font-size: 80px; margin-bottom: 20px; }
+        .success-title { font-size: 28px; font-weight: bold; color: #28a745; margin-bottom: 15px; }
+        .success-message { font-size: 16px; color: #666; line-height: 1.8; margin-bottom: 25px; }
+        .success-btn { padding: 15px 40px; background: linear-gradient(135deg, #ff6b6b, #ff8a80); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 30px; }
+            .logo { font-size: 32px; }
+            .menu-btn { display: block; margin: 10px 0; }
+            .contact-method { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">予約ページを準備中...</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">🍸 ガールズバー REVIEW</div>
+            <p class="subtitle">オンラインで素敵な時間をお過ごしください</p>
+        </div>
+
+        <div class="menu-link-area">
+            <p style="margin-bottom: 15px; font-size: 15px; color: #666;">詳細情報はこちらからご確認ください</p>
+            <a href="menu.html" class="menu-btn" target="_blank">📋 メニュー表</a>
+            <a href="cast.html" class="menu-btn" target="_blank">👯 キャスト紹介</a>
+        </div>
+
+        <!-- ★★★ 重要：action属性にFormspreeのURLを設定 ★★★ -->
+        <form id="reservationForm" action="https://formspree.io/f/https://formspree.io/f/xgolvwaj" method="POST">
+            
+            <!-- メール件名の設定 -->
+            <input type="hidden" name="_subject" value="【予約申請】ガールズバーREVIEW 新規予約">
+            
+            <!-- お名前 -->
+            <div class="form-group">
+                <label>お名前<span class="required">*</span></label>
+                <input type="text" id="name" name="お名前" placeholder="山田 太郎" required>
+            </div>
+
+            <!-- 生年月日 -->
+            <div class="form-group">
+                <label>生年月日<span class="required">*</span></label>
+                <input type="date" id="birthday" name="生年月日" required>
+                <div class="small-text">※20歳未満の方のご利用はお断りしております。</div>
+            </div>
+
+            <!-- 連絡方法選択 -->
+            <div class="form-group">
+                <label>ご連絡方法<span class="required">*</span></label>
+                <div class="contact-method">
+                    <label>
+                        <input type="radio" name="連絡方法" value="メールアドレス" checked onchange="toggleContactInput('email')">
+                        メールアドレス
+                    </label>
+                    <label>
+                        <input type="radio" name="連絡方法" value="LINE" onchange="toggleContactInput('line')">
+                        LINE
+                    </label>
+                </div>
+
+                <div id="emailInput" class="contact-input-group active">
+                    <input type="email" id="email" name="メールアドレス" placeholder="example@email.com">
+                </div>
+
+                <div id="lineInput" class="contact-input-group">
+                    <input type="text" id="lineId" name="LINE_ID" placeholder="LINE IDを入力してください">
+                    <div class="small-text">※事前に友だち追加をお願いします</div>
+                    <a href="https://line.me/R/ti/p/【あなたのLINE公式アカウントID】" class="line-add-btn">友だち追加</a>
+                </div>
+            </div>
+
+            <!-- ご希望日時 -->
+            <div class="form-group">
+                <label>ご希望日時<span class="required">*</span></label>
+                <input type="datetime-local" id="datetime" name="希望日時" required>
+                <div class="small-text">※ご予約時間の5分前までに決済をお願いいたします。</div>
+            </div>
+
+            <!-- ご利用プラン -->
+            <div class="form-group">
+                <label>ご利用プラン<span class="required">*</span></label>
+                <div class="select-wrapper">
+                    <select id="plan" name="選択プラン" required>
+                        <option value="" disabled selected>プランを選択してください</option>
+                        <option value="30分コース (¥1,650)">30分コース (¥1,650)</option>
+                        <option value="60分セットコース (¥8,800) ※指名料・ドリンク4杯込み">60分セットコース (¥8,800) ※指名料・ドリンク4杯込み</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ドリンクチケット -->
+            <div class="form-group">
+                <label>ドリンクチケット</label>
+                <div class="select-wrapper">
+                    <select id="drink" name="ドリンクチケット">
+                        <option value="なし">なし</option>
+                        <option value="2杯チケット (¥2,200)">2杯チケット (¥2,200)</option>
+                        <option value="4杯チケット (¥4,400)">4杯チケット (¥4,400)</option>
+                        <option value="6杯チケット (¥6,600)">6杯チケット (¥6,600)</option>
+                    </select>
+                </div>
+                <div class="small-text">※30分コースの方は購入必須です</div>
+            </div>
+
+            <!-- 希望キャスト -->
+            <div class="form-group">
+                <label>希望キャスト</label>
+                <div class="select-wrapper">
+                    <select id="cast" name="指名キャスト">
+                        <option value="指名なし">指名なし</option>
+                        <option value="りょう">りょう</option>
+                        <option value="ありす">ありす</option>
+                        <option value="なお">なお</option>
+                        <option value="はるか">はるか</option>
+                        <option value="りと">りと</option>
+                        <option value="あんり">あんり</option>
+                        <option value="みう">みう</option>
+                        <option value="あいな">あいな</option>
+                        <option value="かのん">かのん</option>
+                        <option value="れみ">れみ</option>
+                        <option value="ののか">ののか</option>
+                        <option value="ゆみ">ゆみ</option>
+                        <option value="れど">れど</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 合計金額（自動計算） -->
+            <input type="hidden" id="totalAmount" name="合計金額" value="">
+
+            <!-- 備考 -->
+            <div class="form-group">
+                <label>ご要望・備考</label>
+                <textarea id="message" name="ご要望・備考" rows="4" placeholder="ご要望やご質問などございましたらご記入ください"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">予約を確定する</button>
+
+            <div class="payment-info">
+                <div class="payment-title">💳 お支払いについて（事前決済制）</div>
+                <div>
+                    • ご予約時間の<strong>5分前まで</strong>にQRコード決済をお願いいたします<br>
+                    • 予約確定後、決済用QRコードをメール/LINEでお送りします<br>
+                    • 決済完了後、ビデオ通話用のURLをお送りいたします<br>
+                    • 入金確認ができない場合、ご予約はキャンセルとなります
+                </div>
+                <div class="qr-badges">
+                    <span class="qr-badge">PayPay</span>
+                    <span class="qr-badge">LINE Pay</span>
+                    <span class="qr-badge">楽天ペイ</span>
+                    <span class="qr-badge">d払い</span>
+                    <span class="qr-badge">クレジットカード</span>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>📝 ご予約について</strong><br>
+                • ご予約内容を確認後、24時間以内にご連絡いたします<br>
+                • 20歳未満の方のご利用はお断りしております<br>
+                • キャンセルは予約時間の24時間前まで無料です<br>
+                • 24時間以内のキャンセルは50%、当日キャンセルは100%のキャンセル料が発生します<br>
+                • 不明な点がございましたらお気軽にお問い合わせください
+            </div>
+        </form>
+    </div>
+
+    <!-- 送信成功モーダル -->
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">🎉</div>
+            <div class="success-title">予約申請を受け付けました！</div>
+            <div class="success-message">
+                ご予約ありがとうございます。<br>
+                <strong>review.hachioji.online@gmail.com</strong><br>
+                に予約内容をお送りしました。<br><br>
+                24時間以内に確認のご連絡をいたしますので、<br>
+                しばらくお待ちください。
+            </div>
+            <button class="success-btn" onclick="closeSuccessModal()">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        // ローディング画面
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        // パーティクル背景
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 3 + 1,
+                vx: Math.random() * 1 - 0.5,
+                vy: Math.random() * 1 - 0.5,
+                opacity: Math.random() * 0.5 + 0.2
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                ctx.fill();
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            });
+
+            requestAnimationFrame(drawParticles);
+        }
+
+        drawParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // 連絡方法の切り替え
+        function toggleContactInput(method) {
+            const emailInput = document.getElementById('emailInput');
+            const lineInput = document.getElementById('lineInput');
+            const emailField = document.getElementById('email');
+            const lineField = document.getElementById('lineId');
+
+            if (method === 'email') {
+                emailInput.classList.add('active');
+                lineInput.classList.remove('active');
+                emailField.required = true;
+                lineField.required = false;
+            } else {
+                emailInput.classList.remove('active');
+                lineInput.classList.add('active');
+                emailField.required = false;
+                lineField.required = true;
+            }
+        }
+
+        // 料金自動計算
+        function updateTotalAmount() {
+            const plan = document.getElementById('plan').value;
+            const drink = document.getElementById('drink').value;
+            
+            let planPrice = 0;
+            let drinkPrice = 0;
+            
+            if (plan.includes('30分')) planPrice = 1650;
+            else if (plan.includes('60分')) planPrice = 8800;
+            
+            if (drink.includes('2杯')) drinkPrice = 2200;
+            else if (drink.includes('4杯')) drinkPrice = 4400;
+            else if (drink.includes('6杯')) drinkPrice = 6600;
+            
+            const total = planPrice + drinkPrice;
+            document.getElementById('totalAmount').value = total > 0 ? `¥${total.toLocaleString()}` : '';
+        }
+
+        document.getElementById('plan').addEventListener('change', updateTotalAmount);
+        document.getElementById('drink').addEventListener('change', updateTotalAmount);
+
+        // フォーム送信処理
+        document.getElementById('reservationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 年齢確認
+            const birthdate = new Date(document.getElementById('birthday').value);
+            const today = new Date();
+            let age = today.getFullYear() - birthdate.getFullYear();
+            const monthDiff = today.getMonth() - birthdate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+                age--;
+            }
+
+            if (age < 20) {
+                alert('申し訳ございませんが、20歳未満の方はご利用いただけません。');
+                return false;
+            }
+
+            // プラン選択確認
+            const plan = document.getElementById('plan').value;
+            if (!plan) {
+                alert('プランを選択してください。');
+                return false;
+            }
+
+            // 30分コースのドリンクチケット必須チェック
+            const drink = document.getElementById('drink').value;
+            if (plan.includes('30分') && (drink === 'なし' || drink === '')) {
+                alert('30分コースをご利用の場合は、ドリンクチケットの購入が必須です。');
+                return false;
+            }
+
+            // 送信ボタンを無効化
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '送信中...';
+
+            // フォームデータを送信
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    // 送信成功
+                    showSuccessModal();
+                    this.reset();
+                } else {
+                    // エラー処理
+                    alert('送信に失敗しました。もう一度お試しください。');
+                }
+            }).catch(error => {
+                alert('送信に失敗しました。インターネット接続を確認してください。');
+                console.error('Error:', error);
+            }).finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '予約を確定する';
+            });
+        });
+
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // フォームのインタラクティブ効果
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('focus', function() {
+                this.style.transform = 'translateY(-3px)';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
