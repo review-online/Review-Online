@@ -162,8 +162,8 @@
             <!-- ご希望日時 -->
             <div class="form-group">
                 <label>ご希望日時<span class="required">*</span></label>
-                <input type="datetime-local" id="datetime" name="希望日時" required>
-                <div class="small-text">※ご予約時間の5分前までに決済をお願いいたします。</div>
+                <input type="datetime-local" id="datetime" name="希望日時" step="600" required>
+                <div class="small-text">※ご予約時間は10分刻みです。ご予約時間の5分前までに決済をお願いいたします。</div>
             </div>
 
             <!-- ご利用プラン -->
@@ -213,6 +213,7 @@
                         <option value="れど">れど</option>
                     </select>
                 </div>
+                <div class="small-text">※30分コースの方は指名必須です</div>
             </div>
 
             <!-- 合計金額（自動計算） -->
@@ -261,7 +262,7 @@
             <div class="success-title">予約申請を受け付けました！</div>
             <div class="success-message">
                 ご予約ありがとうございます。<br>
-                <strong>review.hachioji.online@gmail.com</strong><br>
+                <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dba9beadb2beacf5b3bab8b3b2b4b1b2f5b4b5b7b2b5be9bbcb6bab2b7f5b8b4b6">[email&#160;protected]</a></strong><br>
                 に予約内容をお送りしました。<br><br>
                 24時間以内に確認のご連絡をいたしますので、<br>
                 しばらくお待ちください。
@@ -270,7 +271,7 @@
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ローディング画面
         window.addEventListener('load', function() {
             setTimeout(() => {
@@ -392,11 +393,19 @@
                 return false;
             }
 
-            // 30分コースのドリンクチケット必須チェック
+            // 30分コースのドリンクチケット・指名必須チェック
             const drink = document.getElementById('drink').value;
-            if (plan.includes('30分') && (drink === 'なし' || drink === '')) {
-                alert('30分コースをご利用の場合は、ドリンクチケットの購入が必須です。');
-                return false;
+            const cast = document.getElementById('cast').value;
+            
+            if (plan.includes('30分')) {
+                if (drink === 'なし' || drink === '') {
+                    alert('30分コースをご利用の場合は、ドリンクチケットの購入が必須です。');
+                    return false;
+                }
+                if (cast === '指名なし' || cast === '') {
+                    alert('30分コースをご利用の場合は、キャストの指名が必須です。');
+                    return false;
+                }
             }
 
             // 送信ボタンを無効化
